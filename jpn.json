@@ -1,0 +1,44 @@
+{
+    System: {
+        Reboot: { name: '再起動' },
+        'Reset Configuration': { name: '初期化' },
+        Clock: { name: '時刻' },
+        Console: { name: 'コンソール' },
+        Drivers: { name: 'ドライバー' },
+        Health: { name: '機器状態' },
+        History: { name: '変更履歴' },
+        License: { name: 'ライセンス' },
+        Logging: { name: 'ロギング' },
+        Packages: { name: 'パッケージ管理' },
+        Password: { name: 'パスワード' },
+        Resources: {
+            Resources: {
+                Uptime: { name: '起動時間' },
+                'Free Memory': { name: '空きメモリ容量' },
+                'Total Memory': { name: '総メモリ容量' },
+                'CPU Frequency': { name: 'CPU 周波数' },
+                'CPU Load': { name: 'CPU 負荷率' },
+                'Free HDD Space': { name: 'HDD空き容量' },
+                'Total HDD Size': { name: 'HDD総容量' }
+            },
+            name: 'リソース'
+        },
+        Users: {
+            Users: {
+                'Last Logged In': { name: '最終ログイン時刻' },
+                Enabled: { name: '有効化' }
+            },
+            name: 'ユーザ管理'
+        }
+    },
+    'New Terminal': { name: '端末起動' },
+    'Make Supout.rif': { name: 'サポートファイル生成' },
+    Manual: { name: 'マニュアル' },
+    Graphs: { name: 'グラフ' },
+    Logout: { name: 'ログアウト' },
+    Files: {
+        File: {
+            Backup: { name: 'バックアップ' }
+        }
+    }
+}
