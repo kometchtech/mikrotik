@@ -89,5 +89,65 @@
             Statistics: { tab: '統計情報' },
             Enabled: { name: '有効化' }
         }
+    },
+    LCD: {
+        LCD: {
+            Enabled: { name: '有効化' },
+            Touchscreen: { name: 'タッチスクリーン' },
+            'Backlight Timeout': { name: 'バックライトタイムアウト' },
+            'Time Interval': { name: '表示更新間隔' }
+        }
+    },
+    'IPv6': {
+        Addresses: {
+            Address: {
+                'From Pool': { name: 'アドレスプール' },
+                Enabled: { name: '有効化' }
+            }
+        },
+        'DHCP Client': {
+            'DHCP Client': {
+                Enabled: { name: '有効化' }
+            }
+        },
+        'DHCP Server': {
+            DHCP: {
+                'Address Pool6': { name: 'アドレスプール' },
+                'Lease Time': { name: '払い出し期間' },
+                Enabled: { name: '有効化' }
+            }
+        },
+        Firewall: {
+            'Filter Rules': {
+                '&': {
+                    apply: { name: '確定' }
+                },
+                General: { tab: '一般設定' },
+                Enabled: { name: '有効化' },
+                Advanced: { tab: '拡張設定' },
+                Statistics: { tab: '統計情報' }
+            }
+        },
+        ND: {
+            Interfaces: {
+                '&': {
+                    apply: { name: '確定' }
+                },
+                Enabled: { name: '有効化' }
+            },
+            Prefixes: {
+                Enabled: { name: '有効化' }
+            }
+        },
+        Routes: {
+            Routes: {
+                General: {
+                    'Dst. Address': { name: '宛先アドレス' },
+                    tab: '一般設定'
+                },
+                Attributes: { tab: '属性' },
+                Enabled: { name: '有効化' }
+            }
+        }
     }
 }
