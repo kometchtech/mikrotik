@@ -1,5 +1,5 @@
 mikrotik_jpn
 ============
 
-���̃t�@�C����MikroTik�Ђ�RB2011��Webfig�̓��{�ꉻ��
-�ړI�Ƃ������̂ł��B
+このファイルはMikroTik社のRB2011のWebfigの日本語化を	
+目的としたものです。
