@@ -10,7 +10,19 @@
         License: { name: 'ライセンス' },
         Logging: { name: 'ロギング' },
         Packages: { name: 'パッケージ管理' },
-        Password: { name: 'パスワード' },
+        Password: {
+            name: 'パスワード',
+            Change: {
+                '&': {
+                    start: { name: '変更' },
+                    cancel: { name: 'キャンセル' },
+                    title: 'パスワード変更'
+                },
+                'Old Password': { name: '現在のパスワード' },
+                'New Password': { name: '新しいパスワード' },
+                'Confirm Password': { name: '新しいパスワード（確認用）' }
+            }
+        },
         Resources: {
             Resources: {
                 Uptime: { name: '起動時間' },
@@ -39,6 +51,43 @@
     Files: {
         File: {
             Backup: { name: 'バックアップ' }
+        }
+    },
+    Interfaces: {
+        Interface: {
+            '&': {
+                add: { name: 'インタフェースの追加' }
+            }
+        }
+    },
+    Bridge: {
+        Bridge: {
+            '&': {
+                add: { name: 'ブリッジの追加' },
+                cancel: { name: 'キャンセル' },
+                apply: { name: '確定' }
+            },
+            General: { tab: '一般設定' },
+            Traffic: { tab: 'トラフィック' },
+            Enabled: { name: '有効化' },
+            STP: { tab: 'スパニングツリープロトコル' }
+        },
+        Settings: { name: '設定' },
+        Ports: {
+            '&': {
+                add: { name: 'ポート追加' },
+                cancel: { name: 'キャンセル' },
+                apply: { name: '確定' }
+            },
+            General: { tab: '一般設定' },
+            Enabled: { name: '有効化' }
+        },
+        NAT: {
+            General: { tab: '一般設定' },
+            Advanced: { tab: '拡張設定' },
+            STP: { tab: 'スパニングツリープロトコル' },
+            Statistics: { tab: '統計情報' },
+            Enabled: { name: '有効化' }
         }
     }
 }
