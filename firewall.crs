@@ -1,0 +1,123 @@
+/ip firewall filter
+add action=drop chain=input comment=Country_Block_korea in-interface=all-ppp \
+    src-address-list=KR
+add action=drop chain=input comment=Country_Block_russia in-interface=all-ppp \
+    src-address-list=RU
+add action=drop chain=input comment=my_black_list in-interface=all-ppp log=yes \
+    src-address-list=my_black_list
+add action=jump chain=forward comment="Block PING_OF_DEATH" in-interface=all-ppp \
+    jump-target=PING_OF_DEATH limit=1,10 protocol=icmp
+add chain=PING_OF_DEATH in-interface=all-ppp limit=1,10 protocol=icmp
+add action=drop chain=PING_OF_DEATH limit=1,10 protocol=icmp
+add action=drop chain=input comment=Block_inbound_icmp in-interface=all-ppp protocol=\
+    icmp src-address-list=icmp-blocked-addr
+add action=add-src-to-address-list address-list=icmp-blocked-addr address-list-timeout=\
+    1w3d chain=input in-interface=all-ppp protocol=icmp src-address-list=\
+    blocked-addr-stage1
+add action=add-src-to-address-list address-list=blocked-addr-stage1 \
+    address-list-timeout=10m chain=input in-interface=all-ppp protocol=icmp
+add action=drop chain=input comment=Block_inbound_webUI dst-port=80 in-interface=all-ppp \
+    protocol=tcp src-address-list=block-addr-list-Web
+add action=add-src-to-address-list address-list=block-addr-list-Web \
+    address-list-timeout=1w3d chain=input connection-state=new dst-port=80 in-interface=\
+    all-ppp protocol=tcp src-address-list=blocked-addr-stage1
+add action=add-src-to-address-list address-list=blocked-addr-stage1 \
+    address-list-timeout=10m chain=input connection-state=new dst-port=80 in-interface=\
+    all-ppp protocol=tcp
+add action=drop chain=input comment=Block_inbound_NTP dst-port=123 in-interface=all-ppp \
+    protocol=udp src-address-list=ntp-blocked-addr
+add action=add-src-to-address-list address-list=blocked-addr address-list-timeout=1w3d \
+    chain=input dst-port=123 in-interface=all-ppp protocol=udp src-address-list=\
+    blocked-addr-stage1
+add action=add-src-to-address-list address-list=blocked-addr-stage1 \
+    address-list-timeout=10m chain=input dst-port=123 in-interface=all-ppp protocol=udp
+add action=drop chain=input comment=Block_inbound_DNS dst-port=53 in-interface=all-ppp \
+    protocol=tcp src-address-list=dns-blocked-addr
+add action=add-src-to-address-list address-list=blocked-addr address-list-timeout=1w3d \
+    chain=input dst-port=53 in-interface=all-ppp protocol=tcp src-address-list=\
+    blocked-addr-stage1
+add action=add-src-to-address-list address-list=blocked-addr-stage1 \
+    address-list-timeout=10m chain=input dst-port=53 in-interface=all-ppp protocol=tcp
+add action=drop chain=input comment=Block_inbound_DNS dst-port=53 in-interface=all-ppp \
+    protocol=udp src-address-list=dns-blocked-addr
+add action=add-src-to-address-list address-list=blocked-addr address-list-timeout=1w3d \
+    chain=input dst-port=53 in-interface=all-ppp protocol=udp src-address-list=\
+    blocked-addr-stage1
+add action=add-src-to-address-list address-list=blocked-addr-stage1 \
+    address-list-timeout=10m chain=input dst-port=53 in-interface=all-ppp protocol=udp
+add action=jump chain=forward comment="SYN Flood protect" connection-state=new \
+    jump-target=SYN-Protect protocol=tcp tcp-flags=syn
+add chain=SYN-Protect connection-state=new limit=400,5 protocol=tcp tcp-flags=syn
+add action=drop chain=SYN-Protect connection-state=new protocol=tcp tcp-flags=syn
+add action=drop chain=known_viruses comment="windows - not EXACTLY a virus" dst-port=\
+    135-139 in-interface=all-ethernet protocol=tcp
+add action=drop chain=known_viruses comment="winXP netbios not EXACTLY a virus" \
+    dst-port=445 in-interface=all-ethernet protocol=udp
+add action=drop chain=known_viruses comment="windows - not EXACTLY a virus" dst-port=\
+    135-139 in-interface=all-ethernet protocol=udp
+add action=drop chain=known_viruses comment="winXP netbios not EXACTLY a virus" \
+    dst-port=445 in-interface=all-ethernet protocol=tcp
+add action=drop chain=known_viruses comment="msblast worm" dst-port=593 protocol=tcp
+add action=drop chain=known_viruses comment="msblast worm" dst-port=4444 protocol=tcp
+add action=drop chain=known_viruses comment="WITTY worm" dst-port=4000 protocol=tcp
+add action=drop chain=known_viruses comment="SoBig.f worm" dst-port=995-999 protocol=tcp
+add action=drop chain=known_viruses comment="SoBig.f worm" dst-port=8998 protocol=tcp
+add action=drop chain=known_viruses comment="beagle worm" dst-port=2745 protocol=tcp
+add action=drop chain=known_viruses comment="beagle worm" dst-port=4751 protocol=tcp
+add action=drop chain=known_viruses comment="SQL Slammer" dst-port=1434 protocol=tcp
+add action=drop chain=bad_people comment="Known Spammer" src-address=81.180.98.3
+add action=drop chain=bad_people comment="Known Spammer" src-address=24.73.97.226
+add action=drop chain=bad_people comment="Known Spammer" src-address=150.164.28.222
+add action=drop chain=bad_people comment="Known Spammer" src-address=180.153.224.106
+add action=drop chain=forward comment="Botnet Sirefef/ZeroAccess" dst-port=\
+    21810,22292,34354,34355 protocol=tcp
+add action=drop chain=forward comment="Botnet Sirefef/ZeroAccess" dst-port=\
+    21810,22292,34354,34355 protocol=udp
+add action=drop chain=forward comment="Botnet Sirefef/ZeroAccess" dst-port=16460-16480 \
+    protocol=tcp
+add action=drop chain=forward comment="Botnet Sirefef/ZeroAccess" dst-port=16460-16480 \
+    protocol=udp
+add action=drop chain=input comment="drop ssh brute forcers" dst-port=22 in-interface=\
+    all-ppp protocol=tcp src-address-list=ssh_blacklist
+add action=add-src-to-address-list address-list=ssh_blacklist address-list-timeout=1w3d \
+    chain=input connection-state=new dst-port=22 in-interface=all-ppp protocol=tcp \
+    src-address-list=ssh_stage3
+add action=add-src-to-address-list address-list=ssh_stage3 address-list-timeout=1m \
+    chain=input connection-state=new dst-port=22 in-interface=all-ppp protocol=tcp \
+    src-address-list=ssh_stage2
+add action=add-src-to-address-list address-list=ssh_stage2 address-list-timeout=1m \
+    chain=input connection-state=new dst-port=22 in-interface=all-ppp protocol=tcp \
+    src-address-list=ssh_stage1
+add action=add-src-to-address-list address-list=ssh_stage1 address-list-timeout=1m \
+    chain=input connection-state=new dst-port=22 in-interface=all-ppp protocol=tcp
+add action=drop chain=input comment=\
+    "allows only 10 FTP login incorrect answers per minute" dst-port=21 in-interface=\
+    all-ppp protocol=tcp src-address-list=ftp_blacklist
+add chain=output content="530 Login incorrect" dst-limit=1/1m,9,dst-address/1m protocol=\
+    tcp
+add action=add-dst-to-address-list address-list=ftp_blacklist address-list-timeout=3h \
+    chain=output content="530 Login incorrect" protocol=tcp
+add action=drop chain=forward comment="drop invalid connections DELETE" \
+    connection-state=invalid
+add action=drop chain=input comment="Blocks SSH" disabled=yes dst-port=22 in-interface=\
+    all-ppp protocol=tcp
+add action=jump chain=forward comment="Known virus ports DELETE" jump-target=\
+    known_viruses
+add action=jump chain=forward comment="kill known bad source addresses DELETE" \
+    jump-target=bad_people
+add action=jump chain=forward comment="Jump to Accepted List" jump-target=accept_list
+add chain=input comment=IPsec/L2TP dst-port=500 in-interface=all-ppp protocol=udp
+add chain=input dst-port=1701 in-interface=all-ppp protocol=udp
+add chain=input dst-port=4500 in-interface=all-ppp protocol=udp
+add chain=input in-interface=all-ppp protocol=ipsec-esp
+add chain=output dst-port=1701 protocol=udp
+add chain=output dst-port=4500 protocol=udp
+add chain=output dst-port=500 protocol=udp
+add chain=output protocol=ipsec-esp
+add action=fasttrack-connection chain=forward comment="fasttrack connection" \
+    connection-state=established,related
+add chain=forward comment="fasttrack connection" connection-state=established,related
+add action=drop chain=forward connection-state=invalid
+add chain=forward comment="allow established connections DELETE" connection-state=\
+    established
+add chain=forward comment="allow related connections DELETE" connection-state=related
