@@ -1,6 +1,10 @@
 /ip firewall filter
-add action=drop chain=input comment=Country_Block_korea in-interface=all-ppp \
-    src-address-list=KR
+add action=drop chain=input comment="JVNVU#98282440\r\
+    \n\81u\92\F1\93\C2\8B\C6\82\E0\96Z\82\B5\82\A2\81I\81v(KanColleViewer) \82\AA\83I\81[\
+    \83v\83\93\83v\83\8D\83L\83V\82\C6\82\B5\82\C4\93\AE\8D\EC\82\B7\82\E9\96\E2\91\E8" \
+    dst-port=37564 in-interface=all-ppp protocol=tcp
+add action=drop chain=input comment=Country_Block_korea disabled=yes in-interface=\
+    all-ppp src-address-list=KR
 add action=drop chain=input comment=Country_Block_russia in-interface=all-ppp \
     src-address-list=RU
 add action=drop chain=input comment=my_black_list in-interface=all-ppp log=yes \
@@ -17,34 +21,13 @@ add action=add-src-to-address-list address-list=icmp-blocked-addr address-list-t
 add action=add-src-to-address-list address-list=blocked-addr-stage1 \
     address-list-timeout=10m chain=input in-interface=all-ppp protocol=icmp
 add action=drop chain=input comment=Block_inbound_webUI dst-port=80 in-interface=all-ppp \
-    protocol=tcp src-address-list=block-addr-list-Web
-add action=add-src-to-address-list address-list=block-addr-list-Web \
-    address-list-timeout=1w3d chain=input connection-state=new dst-port=80 in-interface=\
-    all-ppp protocol=tcp src-address-list=blocked-addr-stage1
-add action=add-src-to-address-list address-list=blocked-addr-stage1 \
-    address-list-timeout=10m chain=input connection-state=new dst-port=80 in-interface=\
-    all-ppp protocol=tcp
+    protocol=tcp
 add action=drop chain=input comment=Block_inbound_NTP dst-port=123 in-interface=all-ppp \
-    protocol=udp src-address-list=ntp-blocked-addr
-add action=add-src-to-address-list address-list=blocked-addr address-list-timeout=1w3d \
-    chain=input dst-port=123 in-interface=all-ppp protocol=udp src-address-list=\
-    blocked-addr-stage1
-add action=add-src-to-address-list address-list=blocked-addr-stage1 \
-    address-list-timeout=10m chain=input dst-port=123 in-interface=all-ppp protocol=udp
+    protocol=udp
 add action=drop chain=input comment=Block_inbound_DNS dst-port=53 in-interface=all-ppp \
-    protocol=tcp src-address-list=dns-blocked-addr
-add action=add-src-to-address-list address-list=blocked-addr address-list-timeout=1w3d \
-    chain=input dst-port=53 in-interface=all-ppp protocol=tcp src-address-list=\
-    blocked-addr-stage1
-add action=add-src-to-address-list address-list=blocked-addr-stage1 \
-    address-list-timeout=10m chain=input dst-port=53 in-interface=all-ppp protocol=tcp
+    protocol=tcp
 add action=drop chain=input comment=Block_inbound_DNS dst-port=53 in-interface=all-ppp \
-    protocol=udp src-address-list=dns-blocked-addr
-add action=add-src-to-address-list address-list=blocked-addr address-list-timeout=1w3d \
-    chain=input dst-port=53 in-interface=all-ppp protocol=udp src-address-list=\
-    blocked-addr-stage1
-add action=add-src-to-address-list address-list=blocked-addr-stage1 \
-    address-list-timeout=10m chain=input dst-port=53 in-interface=all-ppp protocol=udp
+    protocol=udp
 add action=jump chain=forward comment="SYN Flood protect" connection-state=new \
     jump-target=SYN-Protect protocol=tcp tcp-flags=syn
 add chain=SYN-Protect connection-state=new limit=400,5 protocol=tcp tcp-flags=syn
@@ -96,9 +79,11 @@ add action=drop chain=input comment=\
 add chain=output content="530 Login incorrect" dst-limit=1/1m,9,dst-address/1m protocol=\
     tcp
 add action=add-dst-to-address-list address-list=ftp_blacklist address-list-timeout=3h \
-    chain=output content="530 Login incorrect" protocol=tcp
+    chain=output content="530 Login incorrect" disabled=yes protocol=tcp
 add action=drop chain=forward comment="drop invalid connections DELETE" \
     connection-state=invalid
+add chain=input comment=btsync in-interface=all-ppp protocol=tcp src-address=157.7.85.67 \
+    src-port=21392
 add action=drop chain=input comment="Blocks SSH" disabled=yes dst-port=22 in-interface=\
     all-ppp protocol=tcp
 add action=jump chain=forward comment="Known virus ports DELETE" jump-target=\
@@ -106,17 +91,12 @@ add action=jump chain=forward comment="Known virus ports DELETE" jump-target=\
 add action=jump chain=forward comment="kill known bad source addresses DELETE" \
     jump-target=bad_people
 add action=jump chain=forward comment="Jump to Accepted List" jump-target=accept_list
-add chain=input comment=IPsec/L2TP dst-port=500 in-interface=all-ppp protocol=udp
-add chain=input dst-port=1701 in-interface=all-ppp protocol=udp
-add chain=input dst-port=4500 in-interface=all-ppp protocol=udp
-add chain=input in-interface=all-ppp protocol=ipsec-esp
 add chain=output dst-port=1701 protocol=udp
 add chain=output dst-port=4500 protocol=udp
 add chain=output dst-port=500 protocol=udp
 add chain=output protocol=ipsec-esp
-add action=fasttrack-connection chain=forward comment="fasttrack connection" \
-    connection-state=established,related
-add chain=forward comment="fasttrack connection" connection-state=established,related
+add action=fasttrack-connection chain=forward connection-state=established,related
+add chain=forward connection-state=established,related
 add action=drop chain=forward connection-state=invalid
 add chain=forward comment="allow established connections DELETE" connection-state=\
     established
