@@ -1,25 +1,16 @@
 /ip firewall filter
-add action=drop chain=input comment="JVNVU#98282440\r\
-    \n\81u\92\F1\93\C2\8B\C6\82\E0\96Z\82\B5\82\A2\81I\81v(KanColleViewer) \82\AA\83I\81[\
-    \83v\83\93\83v\83\8D\83L\83V\82\C6\82\B5\82\C4\93\AE\8D\EC\82\B7\82\E9\96\E2\91\E8" \
-    dst-port=37564 in-interface=all-ppp protocol=tcp
-add action=drop chain=input comment=Country_Block_korea disabled=yes in-interface=\
-    all-ppp src-address-list=KR
+add action=drop chain=input comment=Country_Block_korea in-interface=all-ppp \
+    src-address-list=KR
 add action=drop chain=input comment=Country_Block_russia in-interface=all-ppp \
     src-address-list=RU
 add action=drop chain=input comment=my_black_list in-interface=all-ppp log=yes \
     src-address-list=my_black_list
+add action=drop chain=forward comment="drop invalid connections" connection-state=\
+    invalid
 add action=jump chain=forward comment="Block PING_OF_DEATH" in-interface=all-ppp \
     jump-target=PING_OF_DEATH limit=1,10 protocol=icmp
 add chain=PING_OF_DEATH in-interface=all-ppp limit=1,10 protocol=icmp
 add action=drop chain=PING_OF_DEATH limit=1,10 protocol=icmp
-add action=drop chain=input comment=Block_inbound_icmp in-interface=all-ppp protocol=\
-    icmp src-address-list=icmp-blocked-addr
-add action=add-src-to-address-list address-list=icmp-blocked-addr address-list-timeout=\
-    1w3d chain=input in-interface=all-ppp protocol=icmp src-address-list=\
-    blocked-addr-stage1
-add action=add-src-to-address-list address-list=blocked-addr-stage1 \
-    address-list-timeout=10m chain=input in-interface=all-ppp protocol=icmp
 add action=drop chain=input comment=Block_inbound_webUI dst-port=80 in-interface=all-ppp \
     protocol=tcp
 add action=drop chain=input comment=Block_inbound_NTP dst-port=123 in-interface=all-ppp \
@@ -32,26 +23,6 @@ add action=jump chain=forward comment="SYN Flood protect" connection-state=new \
     jump-target=SYN-Protect protocol=tcp tcp-flags=syn
 add chain=SYN-Protect connection-state=new limit=400,5 protocol=tcp tcp-flags=syn
 add action=drop chain=SYN-Protect connection-state=new protocol=tcp tcp-flags=syn
-add action=drop chain=known_viruses comment="windows - not EXACTLY a virus" dst-port=\
-    135-139 in-interface=all-ethernet protocol=tcp
-add action=drop chain=known_viruses comment="winXP netbios not EXACTLY a virus" \
-    dst-port=445 in-interface=all-ethernet protocol=udp
-add action=drop chain=known_viruses comment="windows - not EXACTLY a virus" dst-port=\
-    135-139 in-interface=all-ethernet protocol=udp
-add action=drop chain=known_viruses comment="winXP netbios not EXACTLY a virus" \
-    dst-port=445 in-interface=all-ethernet protocol=tcp
-add action=drop chain=known_viruses comment="msblast worm" dst-port=593 protocol=tcp
-add action=drop chain=known_viruses comment="msblast worm" dst-port=4444 protocol=tcp
-add action=drop chain=known_viruses comment="WITTY worm" dst-port=4000 protocol=tcp
-add action=drop chain=known_viruses comment="SoBig.f worm" dst-port=995-999 protocol=tcp
-add action=drop chain=known_viruses comment="SoBig.f worm" dst-port=8998 protocol=tcp
-add action=drop chain=known_viruses comment="beagle worm" dst-port=2745 protocol=tcp
-add action=drop chain=known_viruses comment="beagle worm" dst-port=4751 protocol=tcp
-add action=drop chain=known_viruses comment="SQL Slammer" dst-port=1434 protocol=tcp
-add action=drop chain=bad_people comment="Known Spammer" src-address=81.180.98.3
-add action=drop chain=bad_people comment="Known Spammer" src-address=24.73.97.226
-add action=drop chain=bad_people comment="Known Spammer" src-address=150.164.28.222
-add action=drop chain=bad_people comment="Known Spammer" src-address=180.153.224.106
 add action=drop chain=forward comment="Botnet Sirefef/ZeroAccess" dst-port=\
     21810,22292,34354,34355 protocol=tcp
 add action=drop chain=forward comment="Botnet Sirefef/ZeroAccess" dst-port=\
@@ -79,18 +50,11 @@ add action=drop chain=input comment=\
 add chain=output content="530 Login incorrect" dst-limit=1/1m,9,dst-address/1m protocol=\
     tcp
 add action=add-dst-to-address-list address-list=ftp_blacklist address-list-timeout=3h \
-    chain=output content="530 Login incorrect" disabled=yes protocol=tcp
-add action=drop chain=forward comment="drop invalid connections DELETE" \
-    connection-state=invalid
-add chain=input comment=btsync in-interface=all-ppp protocol=tcp src-address=157.7.85.67 \
-    src-port=21392
+    chain=output content="530 Login incorrect" protocol=tcp
 add action=drop chain=input comment="Blocks SSH" disabled=yes dst-port=22 in-interface=\
     all-ppp protocol=tcp
 add action=jump chain=forward comment="Known virus ports DELETE" jump-target=\
     known_viruses
-add action=jump chain=forward comment="kill known bad source addresses DELETE" \
-    jump-target=bad_people
-add action=jump chain=forward comment="Jump to Accepted List" jump-target=accept_list
 add chain=output dst-port=1701 protocol=udp
 add chain=output dst-port=4500 protocol=udp
 add chain=output dst-port=500 protocol=udp
@@ -98,6 +62,52 @@ add chain=output protocol=ipsec-esp
 add action=fasttrack-connection chain=forward connection-state=established,related
 add chain=forward connection-state=established,related
 add action=drop chain=forward connection-state=invalid
-add chain=forward comment="allow established connections DELETE" connection-state=\
-    established
-add chain=forward comment="allow related connections DELETE" connection-state=related
+add chain=input comment=SSTP disabled=yes dst-port=443 in-interface=gmobb-giga protocol=\
+    tcp
+add chain=input comment=PPTP disabled=yes in-interface=all-ppp protocol=tcp src-port=\
+    1723
+add action=drop chain=known_viruses comment="Drop Blaster Worm" dst-port=135-139 \
+    protocol=tcp
+add action=drop chain=known_viruses comment="Drop Messenger Worm" dst-port=135-139 \
+    protocol=udp
+add action=drop chain=known_viruses comment="Drop Blaster Worm" dst-port=445 protocol=\
+    tcp
+add action=drop chain=known_viruses comment="Drop Blaster Worm" dst-port=445 protocol=\
+    udp
+add action=drop chain=known_viruses comment=________ dst-port=593 protocol=tcp
+add action=drop chain=known_viruses comment=________ dst-port=1024-1030 protocol=tcp
+add action=drop chain=known_viruses comment="Drop MyDoom" dst-port=1080 protocol=tcp
+add action=drop chain=known_viruses comment=________ dst-port=1214 protocol=tcp
+add action=drop chain=known_viruses comment="ndm requester" dst-port=1363 protocol=tcp
+add action=drop chain=known_viruses comment="ndm server" dst-port=1364 protocol=tcp
+add action=drop chain=known_viruses comment="screen cast" dst-port=1368 protocol=tcp
+add action=drop chain=known_viruses comment=hromgrafx dst-port=1373 protocol=tcp
+add action=drop chain=known_viruses comment=cichlid dst-port=1377 protocol=tcp
+add action=drop chain=known_viruses comment=Worm dst-port=1433-1434 protocol=tcp
+add action=drop chain=known_viruses comment="Bagle Virus" dst-port=2745 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Dumaru.Y" dst-port=2283 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Beagle" dst-port=2535 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Beagle.C-K" dst-port=2745 protocol=tcp
+add action=drop chain=known_viruses comment="Drop MyDoom" dst-port=3127-3128 protocol=\
+    tcp
+add action=drop chain=known_viruses comment="Drop Backdoor OptixPro" dst-port=3410 \
+    protocol=tcp
+add action=drop chain=known_viruses comment=Worm dst-port=4444 protocol=tcp
+add action=drop chain=known_viruses comment=Worm dst-port=4444 protocol=udp
+add action=drop chain=known_viruses comment="Drop Sasser" dst-port=5554 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Beagle.B" dst-port=8866 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Dabber.A-B" dst-port=9898 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Dumaru.Y" dst-port=10000 protocol=tcp
+add action=drop chain=known_viruses comment="Drop MyDoom.B" dst-port=10080 protocol=tcp
+add action=drop chain=known_viruses comment="Drop NetBus" dst-port=12345 protocol=tcp
+add action=drop chain=known_viruses comment="Drop Kuang2" dst-port=17300 protocol=tcp
+add action=drop chain=known_viruses comment="Drop SubSeven" dst-port=27374 protocol=tcp
+add action=drop chain=known_viruses comment="msblast worm" dst-port=593 protocol=tcp
+add action=drop chain=known_viruses comment="WITTY worm" dst-port=4000 protocol=tcp
+add action=drop chain=known_viruses comment="SoBig.f worm" dst-port=995-999 protocol=tcp
+add action=drop chain=known_viruses comment="SoBig.f worm" dst-port=8998 protocol=tcp
+add action=drop chain=known_viruses comment="beagle worm" dst-port=2745 protocol=tcp
+add action=drop chain=known_viruses comment="beagle worm" dst-port=4751 protocol=tcp
+add action=drop chain=known_viruses comment="SQL Slammer" dst-port=1434 protocol=tcp
+add action=drop chain=known_viruses comment="Drop PhatBot, Agobot, Gaobot" dst-port=\
+    65506 protocol=tcp
